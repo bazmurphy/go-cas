@@ -1,0 +1,15 @@
+FROM golang:latest
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY keyvaluestore keyvaluestore
+
+COPY client client
+
+RUN go build -o bin/client client/main.go
+
+ENTRYPOINT [ "./bin/client" ]

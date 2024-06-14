@@ -1,0 +1,36 @@
+services:
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server1
+    command: -id=1 -port=8080
+    ports:
+      - 8080:8080
+
+  client1:
+    depends_on: 
+      - server1
+    build: 
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: client1
+    command: -id=1 -requests=50 -server=server1:8080
+
+  client2:
+    depends_on: 
+      - server1
+    build: 
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: client2
+    command: -id=2 -requests=50 -server=server1:8080
+
+  client3:
+    depends_on: 
+      - server1
+    build: 
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: client3
+    command: -id=3 -requests=50 -server=server1:8080
