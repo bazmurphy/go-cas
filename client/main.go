@@ -26,22 +26,25 @@ func main() {
 	}
 
 	if *clientID == 1 {
-		client.Set("baz", 0)
 		// setResponse, err := client.Set("baz", 0)
 		// if err != nil {
 		// 	log.Printf("Client %d | SET | Error: %v", *clientID, err)
 		// } else {
 		// 	log.Printf("Client %d | SET | Response: %v", *clientID, setResponse)
 		// }
-		client.Get("baz")
 		// getResponse, err := client.Get("baz")
 		// if err != nil {
 		// 	log.Printf("Client %d | GET | Error: %v", *clientID, err)
 		// } else {
 		// 	log.Printf("Client %d | GET | Response: %v", *clientID, getResponse)
 		// }
+
+		// initially set a value on the key "baz"
+		client.Set("baz", 0)
+		// client.Get("baz")
 	}
 
+	// make a bunch of CAS requests to the key "baz"
 	for i := 0; i <= *requests; i++ {
 		casResponse, err := client.Cas("baz", int64(i), int64(i+1))
 		if err != nil {

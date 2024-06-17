@@ -1,20 +1,24 @@
 # CAS in Go
 
-CAS stands for Compare-and-Swap, which is an atomic instruction used in multithreading and parallel computing to achieve synchronization between threads or processes. It is a fundamental building block for implementing lock-free algorithms and concurrent data structures.
+The Compare-and-Swap (CAS) operation is a key concept in distributed systems, particularly in scenarios where multiple clients may try to modify the same data concurrently. It provides a way to atomically update a value only if it hasn't been modified by another client since the last read.
 
-The Compare-and-Swap operation works as follows:
-1. It takes three operands: a memory location, an expected value, and a new value.
-2. It compares the contents of the memory location with the expected value.
-3. If the contents of the memory location match the expected value, it atomically swaps the contents of the memory location with the new value.
-4. If the contents of the memory location do not match the expected value, the operation fails, and the contents of the memory location remain unchanged.
+In this project, the server implements the CAS operation in the `Cas` method. It checks if the `expectedValue` matches the current value associated with the key, and if so, updates it with the `newValue`. This ensures that the update is performed only if the value hasn't been modified by another client concurrently.
 
-The key characteristics of the Compare-and-Swap operation are:
-- Atomicity: The entire operation is performed atomically, meaning that it is indivisible and cannot be interrupted by other threads or processes. This ensures that the operation is thread-safe.
-- Synchronization: CAS is used to synchronize access to shared resources among multiple threads or processes. It allows threads to update shared data without the need for explicit locks, reducing the risk of deadlocks and improving performance.
-- Lock-free: CAS enables the implementation of lock-free algorithms, where threads can make progress independently without being blocked by locks held by other threads. This can lead to better scalability and performance in concurrent systems.
+The client demonstrates the usage of the CAS operation by performing a series of CAS requests, attempting to increment the value associated with a key. Each client instance tries to perform a specified number of CAS operations, simulating concurrent access to the shared data.
 
-CAS is commonly used in various scenarios, such as implementing atomic counters, lock-free queues, and non-blocking algorithms. It is supported by many modern processors and programming languages, providing a low-level primitive for efficient synchronization.
+1. Protocol Buffer (`proto`) file:
+   - Defines the gRPC service `KeyValueStoreService` and the associated request and response messages for the `Get`, `Set`, and `Cas` operations.
+   - Serves as the contract between the server and the client.
 
-It's worth noting that CAS has some limitations. It can suffer from the ABA problem, where a memory location is modified by another thread between the read and write operations of the CAS, leading to incorrect behavior. To mitigate this, additional techniques like version numbers or hazard pointers can be used in conjunction with CAS.
+2. Server implementation:
+   - Implements the `KeyValueStoreService` server using gRPC.
+   - Maintains an in-memory key-value store using a `map[string]int64`.
+   - Provides implementations for the `Get`, `Set`, and `Cas` operations.
+   - Uses a read-write mutex (`sync.RWMutex`) to synchronize access to the key-value store.
+   - The `Cas` operation checks if the `expectedValue` matches the current value associated with the key, and if so, updates it with the `newValue`. It returns a boolean indicating the success or failure of the operation.
 
-Overall, Compare-and-Swap is a powerful synchronization primitive that enables efficient and lock-free synchronization in concurrent systems, making it a fundamental concept in parallel computing and multithreaded programming.
+3. Client implementation:
+   - Acts as a client to the `KeyValueStoreService` server.
+   - Establishes a connection to the server using gRPC.
+   - Provides methods to invoke the `Get`, `Set`, and `Cas` operations on the server.
+   - The `main` function demonstrates the usage of the client by setting an initial value and then performing a series of CAS operations.
